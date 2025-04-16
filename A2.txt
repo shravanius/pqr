@@ -1,0 +1,212 @@
+A2.txt
+Assignment 2: Advance Shell Scripting 
+1)	Write a script to back up the directory /home/user/data into a folder named /backup with a timestamped subdirectory. Ensure your script displays a message upon successful completion of the backup. Explanation: • SOURCE: The directory to be backed up. • DESTINATION: The directory where the backup will be stored. • DATE: Captures the current date and time to create a unique backup folder. • mkdir -p $DESTINATION/$DATE: Creates the backup directory if it does not exist. • cp -r $SOURCE $DESTINATION/$DATE: Copies the contents of the source directory to the backup directory. • echo "Backup completed on $DATE": Outputs a message indicating the completion of the backup.
+
+Ans:   backup_script.sh
+
+#!/bin/bash
+
+# SOURCE: Directory to back up
+SOURCE="/home/user/data"
+
+# DESTINATION: Directory where backup will be stored
+DESTINATION="/backup"
+
+# DATE: Current date and time in YYYY-MM-DD_HH-MM-SS format
+DATE=$(date +%F_%H-%M-%S)
+
+# Create the destination directory with the timestamp
+mkdir -p "$DESTINATION/$DATE"
+
+# Copy the contents from SOURCE to DESTINATION/DATE
+cp -r "$SOURCE" "$DESTINATION/$DATE"
+
+# Check if the backup was successful
+if [ $? -eq 0 ]; then
+    echo "Backup completed successfully on $DATE."
+else
+    echo "Backup failed on $DATE."
+Fi
+
+Execute: chmod +x disk_usage_check.sh                       Run:    ./disk_usage_check.sh
+
+2)	Write a script that checks disk usage for all partitions and warns the user if the usage exceeds 80%. Explanation: • THRESHOLD: Sets the disk usage percentage threshold. • df -H: Lists disk usage in human-readable format. • grep -v '^Filesystem tmpfs|cdrom': Filters out unnecessary lines. • awk '{ print $5 " " $1 }': Extracts the usage percentage and partition name. • while read output: Iterates over each line of the filtered output. • usage=$(echo $output | awk '{print $1}' | cut -d'%' -f1): Extracts the usage percentage. • partition=$(echo $output | awk '{print $2}'): Extracts the partition name. if [ $usage - ge $THRESHOLD ]; then: Checks if the usage exceeds the threshold. echo "Warning: Disk usage on partitionisat{usage}%": Prints a warning message.
+Ans: 
+#!/bin/bash
+
+# THRESHOLD: Set disk usage warning limit
+THRESHOLD=80
+
+# Check disk usage, filter unnecessary lines, and process usage and partition
+df -H | grep -vE '^Filesystem|tmpfs|cdrom' | awk '{ print $5 " " $1 }' | while read output
+do
+    # Extract usage percentage (strip % symbol)
+    usage=$(echo $output | awk '{print $1}' | cut -d'%' -f1)
+
+    # Extract partition name
+    partition=$(echo $output | awk '{print $2}')
+
+    # Check if usage exceeds the threshold
+    if [ "$usage" -ge "$THRESHOLD" ]; then
+        echo "⚠️  Warning: Disk usage on partition $partition is at ${usage}%!"
+    fi
+done
+
+3)	Write a script to check the status of the Jenkins.service service and start it if it is not running. Display appropriate messages based on the service's state. Explanation: • SERVICE: The name of the service to check. M.Sc. (CS), 2024-25, Lab Course (MSCOSDSE104)-DevOps-I, Dept. of Comp. Sci., S. P. College, Pune 7 • systemctl is-active --quiet $SERVICE: Checks if the service is running. echo "$SERVICE is running": Prints a message if the service is running. systemctl start $SERVICE: Starts the service if it is not running.
+Ans:
+
+#!/bin/bash
+
+# SERVICE: Name of the service to check
+SERVICE="jenkins.service"
+
+# Check if the service is active
+if systemctl is-active --quiet "$SERVICE"; then
+    echo "✅ $SERVICE is already running."
+else
+    echo "⚠️  $SERVICE is not running. Attempting to start..."
+    sudo systemctl start "$SERVICE"
+
+    # Check again if it started successfully
+    if systemctl is-active --quiet "$SERVICE"; then
+        echo "✅ $SERVICE started successfully."
+    else
+        echo "❌ Failed to start $SERVICE. Please check the logs."
+    fi
+fi
+
+4)	Write a script to check the reachability of a host named google.com and log the result into a file named ping_results.log. Explanation: • HOST: The hostname to check. • OUTPUT_FILE: The file to write the output to. • ping -c 1 $HOST &> /dev/null: Pings the host once, suppressing output. • echo "$HOST is reachable" >> $OUTPUT_FILE: Writes to the output file if the host is reachable. • echo "$HOST is not reachable" >> $OUTPUT_FILE: Writes to the output file if the host is not reachable.
+#!/bin/bash
+
+# Define variables
+HOST="google.com"
+OUTPUT_FILE="ping_results.log"
+
+# Ping the host once and suppress output
+if ping -c 1 $HOST &> /dev/null
+then
+    # If ping is successful, log reachable
+    echo "$(date): $HOST is reachable" >> $OUTPUT_FILE
+else
+    # If ping fails, log not reachable
+    echo "$(date): $HOST is not reachable" >> $OUTPUT_FILE
+fi
+
+5)	Write a script to back up a database named school into the directory /backups with a timestamped filename. The script should prompt the user for the database password. Explanation: • DB_NAME: The name of the database to back up. • BACKUP_DIR: The directory where the backup will be stored. • DATE: Captures the current date and time. • mysqldump -u root -p $DB_NAME> $BACKUP_DIR/$DB_NAME-$DATE.sql: Dumps the database to a SQL file. • echo "Database backup completed: $BACKUP_DIR/$DB_NAME-$DATE.sql": Outputs a message indicating the completion of the backup
+
+Ans1:
+#!/bin/bash
+
+# Define variables
+DB_NAME="school"
+BACKUP_DIR="/backups"
+DATE=$(date +%F-%H-%M-%S)
+
+# Prompt for MySQL password
+read -sp "Enter MySQL root password: " DB_PASS
+echo
+
+# Ensure backup directory exists
+mkdir -p "$BACKUP_DIR"
+
+# Perform the database backup
+mysqldump -u root -p"$DB_PASS" "$DB_NAME" > "$BACKUP_DIR/$DB_NAME-$DATE.sql"
+
+# Check if the backup was successful
+if [ $? -eq 0 ]; then
+    echo "Database backup completed: $BACKUP_DIR/$DB_NAME-$DATE.sql"
+else
+    echo "Database backup failed!"
+fi
+
+6)	Write a script that stores the system uptime in a file named system_uptime.log and appends a timestamp to each entry. Explanation: • uptime -p: Prints the system uptime in a human-readable format.
+Ans: #!/bin/bash
+
+# Define log file
+LOG_FILE="system_uptime.log"
+
+# Get current timestamp
+TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+
+# Get system uptime
+UPTIME=$(uptime -p)
+
+# Append to log file
+echo "[$TIMESTAMP] Uptime: $UPTIME" >> "$LOG_FILE"
+
+# Optional: Output a message
+echo "Uptime logged to $LOG_FILE"
+
+7)	Write a command or script to display all TCP and UDP listening ports on a system, including their associated processes. M.Sc. (CS), 2024-25, Lab Course (MSCOSDSE104)-DevOps-I, Dept. of Comp. Sci., S. P. College, Pune 8 Explanation: • netstat -tuln: Lists all TCP and UDP listening ports. • grep LISTEN: Filters the output to show only listening ports.
+Ans: #!/bin/bash
+
+echo "Listing all TCP and UDP listening ports with associated processes..."
+echo
+
+# Check if netstat is available
+if command -v netstat > /dev/null; then
+    # Use netstat if available
+    sudo netstat -tulnp | grep LISTEN
+else
+    echo "netstat not found. Trying with ss..."
+    # Use ss as an alternative
+    sudo ss -tulnp
+fi
+8)	Write a script that updates the package list, upgrades installed packages, removes unnecessary packages, and cleans up the cache. Include appropriate messages at each step. Explanation: • apt-get update: Updates the package list. • apt-get upgrade -y: Upgrades all installed packages. • apt-get clean: Cleans up the package cache. • apt-get autoremove -y: Removes unnecessary packages. • echo "System packages updated and cleaned up": Outputs a message indicating • the completion of the update and cleanup.
+Ans: #!/bin/bash
+
+echo "----------------------------------------"
+echo "🔄 Updating package list..."
+echo "----------------------------------------"
+sudo apt-get update
+
+echo
+echo "----------------------------------------"
+echo "⬆️  Upgrading installed packages..."
+echo "----------------------------------------"
+sudo apt-get upgrade -y
+
+echo
+echo "----------------------------------------"
+echo "🧹 Removing unnecessary packages..."
+echo "----------------------------------------"
+sudo apt-get autoremove -y
+
+echo
+echo "----------------------------------------"
+echo "🗑️  Cleaning up package cache..."
+echo "----------------------------------------"
+sudo apt-get clean
+
+echo
+echo "✅ System packages updated and cleaned up successfully!"
+echo "----------------------------------------"
+
+9)	Write a script to check the response times of the URLs https://example.com and https://google.com and display the results in the format: "Response time for [URL]: [time] seconds" Explanation: • URLS: An array of URLs to check. • for URL in "${URLS[@]}": Iterates over each URL. • curl -o /dev/null -s -w '%{time_total}\n' $URL: Uses curl to fetch the URL and measure the total response time. • echo "Response time for $URL: $RESPONSE_TIME seconds": Prints the response time for each URL
+Ans:  #!/bin/bash
+
+# Define the array of URLs
+URLS=("https://example.com" "https://google.com")
+
+echo "Checking response times..."
+echo "----------------------------------------"
+
+# Loop through each URL and check response time
+for URL in "${URLS[@]}"
+do
+    RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}\n' "$URL")
+    echo "Response time for $URL: $RESPONSE_TIME seconds"
+done
+
+echo "----------------------------------------"
+echo "✅ Done."
+
+10)	Write a command to display the top 10 processes consuming the most memory on a system. Explanation: • ps aux: Lists all running processes. • --sort--% mem: Sorts the processes by memory usage in descending order. • head -n 10: Displays the top 10 processes by memory usage.
+Ans:  ps aux --sort=-%mem | head -n 11
+
+Explanation
+•	ps aux → Lists all running processes with details.
+•	--sort=-%mem → Sorts by memory usage (%MEM) in descending order (-).
+•	head -n 11 → Shows the top 10 processes, plus 1 header line.
+So the first line is the header (USER, PID, %CPU, %MEM, etc.), and the next 10 lines are the highest memory users.
+
