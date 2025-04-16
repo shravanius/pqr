@@ -12,6 +12,64 @@ sudo apt-get update -y
     rm -rf /tmp/finance
 
 
+UDP Server
+import socket
+
+# Server config
+UDP_IP = "0.0.0.0"  # Listen on all available interfaces
+UDP_PORT = 9999
+BUFFER_SIZE = 1024
+
+def get_latest_uptime(file_path="uptime_data.tsv"):
+    try:
+        with open(file_path, "r") as file:
+            lines = file.readlines()
+            if lines:
+                return lines[-1].strip()  # Return last line (latest)
+            else:
+                return "No data available"
+    except FileNotFoundError:
+        return "uptime_data.tsv not found"
+
+def main():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind((UDP_IP, UDP_PORT))
+    print(f"UDP server is up and listening on port {UDP_PORT}...")
+
+    while True:
+        data, addr = sock.recvfrom(BUFFER_SIZE)
+        print(f"Received request from {addr}")
+        uptime = get_latest_uptime()
+        sock.sendto(uptime.encode(), addr)
+
+if _name_ == "_main_":
+    main()
+
+UDP cLIENT
+
+   import socket
+
+# Replace with your EC2 public IP address
+SERVER_IP = "your-ec2-public-ip"
+SERVER_PORT = 9999
+BUFFER_SIZE = 1024
+
+def main():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    message = "get_uptime"
+    sock.sendto(message.encode(), (SERVER_IP, SERVER_PORT))
+    data, _ = sock.recvfrom(BUFFER_SIZE)
+    print("Latest Uptime Info:", data.decode())
+
+if _name_ == "_main_":
+    main()
+
+9999 port
+
+
+
+
+
 
 Q. Advanced Docker (Docker Compose, Networking, Volumes) 
 1) Mongo-Express Application (Manual using Docker commands)
