@@ -1,0 +1,90 @@
+que1
+git clone https://github.com/<username>/<repo-name>.git
+
+git clone https://github.com/<your-username>/<new-repo>.git
+cd <new-repo>
+
+## Purpose
+This repository demonstrates basic Git and GitHub workflow.
+
+git add README.md
+git commit -m "Update README.md to explain purpose of the repository"
+
+git config --global user.name "Your Name"
+git config --global user.email your.email@example.com
+
+git config --global –list
+
+git pull origin main
+
+echo "<!DOCTYPE html><html><head><title>My Page</title></head><body><h1>Hello GitHub</h1></body></html>" > index.html
+git add README.md index.html
+
+git commit -m "Added index.html and updated README"
+git push --set-upstream origin main
+
+
+
+
+Que  2
+  a
+# Make sure you're on the main branch
+git checkout main
+
+# Stage and commit the changes
+git add README.md
+git commit -m "C0: Added h1 tag to README.md"
+
+git add newfile.txt
+git commit -m "C1: Created new text file"
+
+git add newfile.txt
+git commit -m "C2: Modified text file"
+
+# Push to remote repository
+git push origin main
+
+  b
+  # Create and switch to iss53 branch
+git checkout -b iss53
+
+# Make changes: create index.html and update README.md
+git add index.html README.md
+git commit -m "C3: Added index.html and updated README.md"
+
+# To see differences
+git diff main iss53    # To compare main and iss53
+git diff HEAD~1 HEAD   # To compare last two commits (e.g., C2 vs C3)
+
+# Push to remote
+git push origin iss53
+
+
+  c             
+  # Switch to main and create hotfix branch
+git checkout main
+git checkout -b hotfix
+
+# Make fix in txt file
+git add newfile.txt
+git commit -m "C4: Hotfix update to text file"
+
+# Push hotfix branch to remote
+git push origin hotfix
+
+  d
+  # Switch to main branch
+git checkout main
+
+# Merge hotfix branch
+git merge hotfix
+
+# Delete hotfix branch
+git branch -d hotfix    # Deletes locally
+git push origin --delete hotfix  # Deletes remotely
+
+
+
+
+
+
